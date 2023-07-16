@@ -26,21 +26,25 @@ app.get("/", (req, res) => {
   
   // CREATE
   app.post("/", (req, res) => {
-    const newTransaction = req.body;
-    newTransaction.id = transactions.length; // Generate new ID
+    const newTransaction = {id: transactions.length, ...req.body};
     transactions.push(newTransaction);
     res.status(201).json(newTransaction); // Return created transaction with ID
   });
   
   // DELETE
   app.delete("/:id", (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = Number(req.params.id);
     const index = transactions.findIndex(
       (transaction) => transaction.id === id
     );
   
     if (index !== -1) {
       const deletedTransaction = transactions.splice(index, 1);
+      for(const transaction of transactions){
+        if(transaction.id > index){
+          transaction.id--
+        }
+      }
       res.status(200).json(deletedTransaction);
     } else {
       res.status(404).json({ error: "Not Found" });
@@ -49,15 +53,21 @@ app.get("/", (req, res) => {
   
   // UPDATE
   app.put("/:id", (req, res) => {
-    const id = parseInt(req.params.id);
-    const updatedTransaction = req.body;
+    const id = Number(req.params.id);
     const index = transactions.findIndex(
       (transaction) => transaction.id === id
     );
-  
+
+    const newData = req.body
+
+    for(const key in newData){
+      if(transactions[index][key] !== newData){
+        transactions[index][key] = newData[key]
+      }
+    }
+
     if (index !== -1) {
-        transactions[index] = updatedTransaction;
-      res.status(200).json(updatedTransaction);
+      res.status(200).json(transactions[index]);
     } else {
       res.status(404).json({ error: "Not Found" });
     }
