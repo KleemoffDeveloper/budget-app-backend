@@ -1,6 +1,9 @@
 const express = require('express')
 const app = express()
 const transactions = require("./models/transactions");
+const cors = require('cors')
+app.use(cors())
+app.use(express.json())
 
 // INDEX
 app.get("/", (req, res) => {
@@ -24,7 +27,7 @@ app.get("/", (req, res) => {
   // CREATE
   app.post("/", (req, res) => {
     const newTransaction = req.body;
-    newTransaction.id = transactions.length + 1; // Generate new ID
+    newTransaction.id = transactions.length; // Generate new ID
     transactions.push(newTransaction);
     res.status(201).json(newTransaction); // Return created transaction with ID
   });
